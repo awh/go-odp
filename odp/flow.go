@@ -19,7 +19,7 @@ func AllBytes(data []byte, x byte) bool {
 }
 
 type FlowKey interface {
-	typeId() uint16
+	TypeId() uint16
 	putKeyNlAttr(*NlMsgBuilder)
 	putMaskNlAttr(*NlMsgBuilder)
 	Ignored() bool
@@ -182,7 +182,7 @@ func (key BlobFlowKey) String() string {
 		hex.EncodeToString(key.key()), hex.EncodeToString(key.mask()))
 }
 
-func (key BlobFlowKey) typeId() uint16 {
+func (key BlobFlowKey) TypeId() uint16 {
 	return key.typ
 }
 
@@ -673,7 +673,7 @@ func (fk TunnelFlowKey) Mask() TunnelAttrs {
 	return fk.mask
 }
 
-func (TunnelFlowKey) typeId() uint16 {
+func (TunnelFlowKey) TypeId() uint16 {
 	return OVS_KEY_ATTR_TUNNEL
 }
 
@@ -824,13 +824,13 @@ func MakeFlowKeys() FlowKeys {
 
 func (keys FlowKeys) Add(k FlowKey) {
 	// TODO check for collisions
-	keys[k.typeId()] = k
+	keys[k.TypeId()] = k
 }
 
 // Actions
 
 type Action interface {
-	typeId() uint16
+	TypeId() uint16
 	toNlAttr(*NlMsgBuilder)
 	Equals(Action) bool
 }
@@ -849,7 +849,7 @@ func (oa OutputAction) VportID() VportID {
 	return VportID(oa)
 }
 
-func (OutputAction) typeId() uint16 {
+func (OutputAction) TypeId() uint16 {
 	return OVS_ACTION_ATTR_OUTPUT
 }
 
@@ -935,7 +935,7 @@ func (ta SetTunnelAction) String() string {
 	return buf.String()
 }
 
-func (SetTunnelAction) typeId() uint16 {
+func (SetTunnelAction) TypeId() uint16 {
 	return OVS_ACTION_ATTR_SET
 }
 
