@@ -8,6 +8,7 @@ import (
 	"net"
 	"os"
 	"os/exec"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -1081,8 +1082,31 @@ func listFlows(f Flags) bool {
 	return true
 }
 
+type FlowKeySlice []odp.FlowKey
+
+func (fks FlowKeySlice) Len() int {
+	return len(fks)
+}
+
+func (fks FlowKeySlice) Less(i, j int) bool {
+	return fks[i].TypeId() < fks[j].TypeId()
+}
+
+func (fks FlowKeySlice) Swap(i, j int) {
+	temp := fks[i]
+	fks[i] = fks[j]
+	fks[j] = temp
+}
+
 func printFlowKeys(fks odp.FlowKeys, dp odp.DatapathHandle) error {
-	for _, fk := range fks {
+	fkvs := make(FlowKeySlice, 0, len(fks))
+	for _, fkv := range fks {
+		fkvs = append(fkvs, fkv)
+	}
+
+	sort.Sort(fkvs)
+
+	for _, fk := range fkvs {
 		if fk.Ignored() {
 			continue
 		}
@@ -1117,8 +1141,26 @@ func printFlowKeys(fks odp.FlowKeys, dp odp.DatapathHandle) error {
 	return nil
 }
 
+type ActionSlice []odp.Action
+
+func (as ActionSlice) Len() int {
+	return len(as)
+}
+
+func (as ActionSlice) Less(i, j int) bool {
+	return as[i].TypeId() < as[j].TypeId()
+}
+
+func (as ActionSlice) Swap(i, j int) {
+	temp := as[i]
+	as[i] = as[j]
+	as[j] = temp
+}
+
 func printFlowActions(as []odp.Action, dp odp.DatapathHandle) error {
 	outputs := make([]string, 0)
+
+	sort.Sort(ActionSlice(as))
 
 	for _, a := range as {
 		switch a := a.(type) {
